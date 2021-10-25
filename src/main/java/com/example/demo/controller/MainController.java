@@ -4,6 +4,8 @@ import com.example.demo.dto.EventDTO;
 import com.example.demo.dto.ReportDTO;
 import com.example.demo.factories.EventFactory;
 import com.example.demo.service.EventService;
+import com.example.demo.service.ReportService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,17 +13,15 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.util.List;
 
+@RestController
 @RequestMapping("/api")
+@RequiredArgsConstructor
 public class MainController {
 
     //private final ReportRepository reportRepository;
     private final EventService eventService;
     private final EventFactory eventFactory;
-
-    public MainController(EventService eventService, EventFactory eventFactory) {
-        this.eventService = eventService;
-        this.eventFactory = eventFactory;
-    }
+    private final ReportService reportService;
 
     @GetMapping
     public String home()  {
@@ -29,13 +29,15 @@ public class MainController {
     }
 
     @PostMapping(value = "/addEvent")
-    public ResponseEntity<EventDTO> addEvent(EventDTO eventDTO) {
+    public ResponseEntity<EventDTO> addEvent(@RequestBody EventDTO eventDTO) {
+        System.out.println("1231");
         eventFactory.detectEvent(eventDTO);
+
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @GetMapping(value = "/addEvents")
-    public ResponseEntity<List<EventDTO>> addEvents(List<EventDTO> listOfEventDTO) {
+    @PostMapping(value = "/addEvents")
+    public ResponseEntity<List<EventDTO>> addEvents(@RequestBody List<EventDTO> listOfEventDTO) {
         while ( listOfEventDTO.iterator().hasNext()){
             EventDTO eventDTO = listOfEventDTO.iterator().next();
             eventFactory.detectEvent(eventDTO);
@@ -64,7 +66,7 @@ public class MainController {
 
     @PostMapping(value = "/generateReport")
     public ResponseEntity<ReportDTO> generateReport() throws IOException {
-        ReportDTO reportDTO = eventService.generateReport();
+        ReportDTO reportDTO = reportService.generateReport();
         return ResponseEntity.ok().body(reportDTO);
     }
 

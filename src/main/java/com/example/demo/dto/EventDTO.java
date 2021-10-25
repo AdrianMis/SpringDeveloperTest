@@ -3,14 +3,10 @@ package com.example.demo.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.time.LocalDate;
 
 @Data
-@NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class EventDTO {
     private Long id;

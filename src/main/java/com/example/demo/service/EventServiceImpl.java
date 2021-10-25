@@ -9,8 +9,6 @@ import com.example.demo.repository.ContractCreatedEventRepository;
 import com.example.demo.repository.ContractTerminatedEventRepository;
 import com.example.demo.repository.PriceDecreasedEventRepository;
 import com.example.demo.repository.PriceIncreasedEventRepository;
-import com.example.demo.service.EventService;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -26,32 +24,12 @@ public class EventServiceImpl implements EventService {
     private final PriceDecreasedEventRepository priceDecreasedEventRepository;
     private final PriceIncreasedEventRepository priceIncreasedEventRepository;
 
-    @Override
-    public ReportDTO generateReport()  {
-        ReportDTO reportDTO = new ReportDTO();
-        List<Integer> listOfContracts = null;
-        List<Integer> listOfAGWP = null;
-        List<Integer> listOfEGWP = null;
 
-        int[][] data = getTableOfAllData();
-
-        for (int i = 0;i<11;i++)
-        {
-            listOfContracts.add(data[0][i]);
-            listOfAGWP.add(data[1][i]);
-            listOfEGWP.add(data[2][i]);
-        }
-
-        reportDTO.setNumberOfContracts(listOfContracts);
-        reportDTO.setAGWP(listOfAGWP);
-        reportDTO.setEGWP(listOfEGWP);
-        return reportDTO;
-    }
 
     @Override
     public int numberOfContrafts(){
-        Iterable<ContractCreatedEvent> allCreatedContract = contractCreatedEventRepository.findAll();
-        Iterable<ContractTerminatedEvent> allTerminatedContract = contractTerminatedEventRepository.findAll();
+        Iterable<ContractCreatedEvent> allCreatedContract = findAllContractCreatedEvent();
+        Iterable<ContractTerminatedEvent> allTerminatedContract = findAllContractTerminatedEvent();
         int counterOfCreatedContract = 0;
         for (Object i : allCreatedContract) {
             counterOfCreatedContract++;
@@ -78,8 +56,68 @@ public class EventServiceImpl implements EventService {
         return agwpInMonth(month);
     }
 
+    @Override
+    public void save(ContractCreatedEvent contractCreatedEvent) {
+        this.contractCreatedEventRepository.save(contractCreatedEvent);
+    }
+
+    @Override
+    public void save(ContractTerminatedEvent contractTerminatedEvent) {
+        this.contractTerminatedEventRepository.save(contractTerminatedEvent);
+    }
+
+    @Override
+    public void save(PriceDecreasedEvent priceDecreasedEvent) {
+        this.priceDecreasedEventRepository.save(priceDecreasedEvent);
+    }
+
+    @Override
+    public void save(PriceIncreasedEvent priceIncreasedEvent) {
+        this.priceIncreasedEventRepository.save(priceIncreasedEvent);
+    }
+
+    @Override
+    public List<ContractCreatedEvent> findAllContractCreatedEvent() {
+        return this.contractCreatedEventRepository.findAll();
+    }
+
+    @Override
+    public List<ContractTerminatedEvent> findAllContractTerminatedEvent() {
+        return this.contractTerminatedEventRepository.findAll();
+    }
+
+    @Override
+    public List<PriceDecreasedEvent> findAllPriceDecreasedEvent() {
+        return this.priceDecreasedEventRepository.findAll();
+    }
+
+    @Override
+    public List<PriceIncreasedEvent> findAllPriceIncreasedEvent() {
+        return this.priceIncreasedEventRepository.findAll();
+    }
+
+    @Override
+    public PriceIncreasedEvent getPriceIncreasedEventById(Long id) {
+        return this.priceIncreasedEventRepository.findPriceIncreasedEventByContractId(id);
+    }
+
+    @Override
+    public PriceDecreasedEvent getPriceDecreasedEventById(Long id) {
+        return this.priceDecreasedEventRepository.findPriceDecreasedEventByContractId(id);
+    }
+
+    @Override
+    public ContractCreatedEvent getContractCreatedEventById(Long id) {
+        return this.contractCreatedEventRepository.getById(id);
+    }
+
+    @Override
+    public LocalDate getDateOfContractTerminatedEventById(Long id) {
+        return this.contractTerminatedEventRepository.findDateOfContractTerminatedEventByContractId(id);
+    }
+
     public int numberOfContraftsInMonth(int month){
-        Iterable<ContractCreatedEvent> allCreatedContract = contractCreatedEventRepository.findAll();
+        Iterable<ContractCreatedEvent> allCreatedContract = findAllContractCreatedEvent();
         int numberOfContrafts = 0;
 
         while ( allCreatedContract.iterator().hasNext()){
@@ -91,7 +129,7 @@ public class EventServiceImpl implements EventService {
     }
 
     public int agwpInMonth(int month){
-        Iterable<ContractCreatedEvent> allCreatedContract = contractCreatedEventRepository.findAll();
+        Iterable<ContractCreatedEvent> allCreatedContract = findAllContractCreatedEvent();
         int agwpInMonth = 0;
 
         while ( allCreatedContract.iterator().hasNext()){
@@ -105,7 +143,7 @@ public class EventServiceImpl implements EventService {
 
     public int egwpInMonth(int month,int agwp){
 
-        Iterable<ContractCreatedEvent> allCreatedContract = contractCreatedEventRepository.findAll();
+        Iterable<ContractCreatedEvent> allCreatedContract =findAllContractCreatedEvent();
         int egwpInMonth = 0;
 
         while ( allCreatedContract.iterator().hasNext()){
@@ -121,7 +159,7 @@ public class EventServiceImpl implements EventService {
 
     public boolean isWorking(ContractCreatedEvent crContract, int month) {
         int createdMonth = crContract.getStartDate().getMonth().getValue();
-        Integer terminatedMonth = contractTerminatedEventRepository.findDateOfContractTerminatedEventByContractId(crContract.getContractId()).getMonth().getValue();
+        Integer terminatedMonth = getDateOfContractTerminatedEventById(crContract.getContractId()).getMonth().getValue();
 
         if ((month >= createdMonth)) {
             if (terminatedMonth !=null) {
@@ -154,22 +192,7 @@ public class EventServiceImpl implements EventService {
         return 0;
     }
 
-    public int[][] getTableOfAllData(){
-        int[][] allData = new int[3][12];
 
-        for (int i = 0;i<11;i++)
-        {
-            allData[0][i] = numberOfContraftsInMonth(i);
-
-            allData[1][i] = agwpInMonth(i);
-            for (int j=0;j<i;j++) {allData[1][i] = allData[1][j];}
-
-            if (i == 0)allData[2][i] = egwpInMonth(i,0);
-            else allData[2][i] = egwpInMonth(i,allData[1][i-1]);
-        }
-
-        return allData;
-    }
 
 //    public Resource generateCSVReport() throws IOException {
 //        File file = new File("Report.csv");

@@ -16,6 +16,4 @@ public class Event {
     @Column(name = "contract_id")
     private Long contractId;
 
-    @Column(name = "name")
-    private Long name;
 }
