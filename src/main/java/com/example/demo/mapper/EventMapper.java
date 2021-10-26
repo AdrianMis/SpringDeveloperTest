@@ -10,12 +10,12 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface EventMapper {
 
-    ContractCreatedEvent eventDTOToContractCreatedEvent (EventDTO eventDTO);
+    ContractCreatedEvent eventDTOToContractCreatedEvent(EventDTO eventDTO);
 
-    ContractTerminatedEvent eventDTOToContractTerminatedEvent (EventDTO eventDTO);
+    ContractTerminatedEvent eventDTOToContractTerminatedEvent(EventDTO eventDTO);
 
-    PriceDecreasedEvent eventDTOToPriceDecreasedEvent (EventDTO eventDTO);
+    PriceDecreasedEvent eventDTOToPriceDecreasedEvent(EventDTO eventDTO);
 
-    PriceIncreasedEvent eventDTOToPriceIncreasedEvent (EventDTO eventDTO);
+    PriceIncreasedEvent eventDTOToPriceIncreasedEvent(EventDTO eventDTO);
 
 }

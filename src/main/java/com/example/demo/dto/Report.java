@@ -1,7 +1,6 @@
 package com.example.demo.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,8 +9,8 @@ import java.util.List;
 
 @Getter
 @Setter
-@NoArgsConstructor
-public class ReportDTO {
+@Builder
+public class Report {
     private List<Integer> numberOfContracts;
 
     private List<Integer> AGWP;

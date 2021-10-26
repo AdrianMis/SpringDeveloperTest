@@ -1,9 +1,8 @@
-package com.example.demo.service;
+package com.example.demo.service.internal;
 
 import com.example.demo.model.Event;
 import com.example.demo.repository.EventRepository;
-import com.example.demo.repository.PriceDecreasedEventRepository;
-import com.example.demo.repository.PriceIncreasedEventRepository;
+import com.example.demo.service.boundary.EventService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,30 +13,23 @@ import java.util.List;
 public class EventServiceImpl implements EventService {
 
     private final EventRepository eventRepository;
-    private final PriceIncreasedEventRepository priceIncreasedEventRepository;
-    private final PriceDecreasedEventRepository priceDecreasedEventRepository;
 
     @Override
     public void save(Event event) {
-        this.eventRepository.save(event);
+        eventRepository.save(event);
     }
 
-    private List<Event> findAllContractCreatedEvent() {
-        return this.eventRepository.findAllByName("ContractCreatedEvent");
+    @Override
+    public void save(List<Event> events) {
+        eventRepository.saveAll(events);
     }
 
-    private Long countContractCreatedEvent() {
-        return this.eventRepository.countAllByName("ContractCreatedEvent");
-    }
-
-    private Long countContractTerminatedEvent() {
-        return this.eventRepository.countAllByName("ContractTerminatedEvent");
-    }
-
+    @Override
     public int countingActiveContractsInSpecifyMonth(int month) {
         return getActiveContractIds(month).size();
     }
 
+    @Override
     public int calculateAgwpInSpecifyMonth(int month) {
         List<Long> activeContractIds = getActiveContractIds(month);
         int agwp = 0;
@@ -46,11 +38,10 @@ public class EventServiceImpl implements EventService {
                     getPremiumByContractId(contractId)
                             + totalIncreasedPremiumInMonth(contractId, month)
                             - totalDecreasedPremiumInMonth(contractId, month);
-
         return agwp;
     }
 
-
+    @Override
     public int calculateEgwpInSpecifyMonth(int month, int agwp) {
         List<Long> activeContractIds = getActiveContractIds(month);
         int egwp = 0;
@@ -59,26 +50,25 @@ public class EventServiceImpl implements EventService {
                     getPremiumByContractId(contractId)
                             + totalIncreasedPremiumInMonth(contractId, month)
                             - totalDecreasedPremiumInMonth(contractId, month);
-
-        egwp = egwp * (13 - month);
-        return egwp + agwp;
+        return egwp * (13 - month) + agwp;
     }
 
     private Integer getPremiumByContractId(Long contractId) {
         return eventRepository.findPremiumByContractId(contractId);
     }
 
-    private List<Long> getActiveContractIds(int month){
+    private List<Long> getActiveContractIds(int month) {
         List<Long> idsExistInSpecifyMonth = eventRepository.getContractIdsExistInSpecifyMonth(month);
         return eventRepository.getOnlyActiveContractInSpecifyMonthFromList(month, idsExistInSpecifyMonth);
     }
-    public Long totalIncreasedPremiumInMonth(Long id, int month) {
-        Long sum = priceIncreasedEventRepository.calculateSumByContractIdAndMonth(id, month);
+
+    private Long totalIncreasedPremiumInMonth(Long id, int month) {
+        Long sum = eventRepository.calculateSumByContractIdAndMonthIncreased(id, month);
         return sum != null ? sum : 0;
     }
 
-    public Long totalDecreasedPremiumInMonth(Long id, int month) {
-        Long sum = priceDecreasedEventRepository.calculateSumByContractIdAndMonth(id, month);
+    private Long totalDecreasedPremiumInMonth(Long id, int month) {
+        Long sum = eventRepository.calculateSumByContractIdAndMonthDecreased(id, month);
         return sum != null ? sum : 0;
     }
 }

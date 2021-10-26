@@ -1,19 +1,20 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.EventDTO;
-import com.example.demo.dto.ReportDTO;
-import com.example.demo.factories.EventFactory;
-import com.example.demo.model.ContractCreatedEvent;
-import com.example.demo.model.Event;
-import com.example.demo.service.EventService;
-import com.example.demo.service.ReportService;
+import com.example.demo.dto.Report;
+import com.example.demo.factories.boundary.EventFactory;
+import com.example.demo.service.boundary.EventService;
+import com.example.demo.service.boundary.ReportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -32,52 +33,15 @@ public class MainController {
     }
 
     @PostMapping(value = "/addEvents")
-    public ResponseEntity<List<EventDTO>> addEvents(@RequestBody List<EventDTO> listOfEventDTO) {
-        for(EventDTO event : listOfEventDTO) {eventService.save(eventFactory.detectEvent(event));}
+    public ResponseEntity<List<EventDTO>> addEvents(@RequestBody List<EventDTO> eventsDTO) {
+        eventService.save(eventsDTO.stream().map(eventFactory::detectEvent).collect(Collectors.toList()));
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-//    @GetMapping(value = "/numberOfContracts")
-//    public ResponseEntity<Long> numberOfContracts() {
-//        Long result = eventService.numberOfContracts();
-//        return ResponseEntity.status(HttpStatus.OK).body(result);
-//    }
-//
-//    @GetMapping(value = "/egwp")
-//    public ResponseEntity<Integer> expectedGrossWrittenPremium() {
-//        Integer result = eventService.expectedGrossWrittenPremium();
-//        return ResponseEntity.status(HttpStatus.OK).body(result);
-//    }
-//
-//    @GetMapping(value = "/agwp")
-//    public ResponseEntity<Integer> actualGrossWrittenPremium() {
-//        Integer result = eventService.actualGrossWrittenPremium();
-//        return ResponseEntity.status(HttpStatus.OK).body(result);
-//    }
-
     @PostMapping(value = "/generateReport")
-    public ResponseEntity<ReportDTO> generateReport() {
-        ReportDTO reportDTO = reportService.generateReport();
-        return ResponseEntity.ok().body(reportDTO);
+    public ResponseEntity<Report> generateReport() {
+        Report response = reportService.generateReport();
+        return ResponseEntity.ok().body(response);
     }
-
-//    @PostMapping(value = "/generateReport")
-//    public ResponseEntity<Resource> generateReport() throws IOException {
-//        Resource resource = eventService.generateCSVReport();
-//        return ResponseEntity.ok().body(resource);
-//    }
-
-//    @GetMapping(value = "/getReport/{id}")
-//    public ResponseEntity<Resource> getReport(@PathVariable(name = "id") Long id) {
-//
-//        Optional<Report> optionalReport = reportRepository.findById(id);
-//        if (!optionalReport.isPresent()) {
-//            return ResponseEntity.badRequest().build();
-//        }
-//        Report report = optionalReport.get();
-//        Resource resource = new ByteArrayResource(report.getContent());
-//        return ResponseEntity.ok().body(resource);
-//    }
-
 }
