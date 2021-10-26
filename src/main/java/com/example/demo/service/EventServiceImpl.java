@@ -13,19 +13,12 @@ import java.util.List;
 public class EventServiceImpl implements EventService {
 
     private final EventRepository eventRepository;
+    private final PriceIncreasedEventRepository priceIncreasedEventRepository;
 
     @Override
-    public int numberOfContracts(){
-        List<Event> allCreatedContract = findAllContractCreatedEvent();
-        List<Event> allTerminatedContract =  findAllContractTerminatedEvent();
-        int counterOfCreatedContract = allCreatedContract.size();
-        int counterOfTerminatedContract = allTerminatedContract.size();
-
-        int numberOfContracts = counterOfCreatedContract - counterOfTerminatedContract;
-        if (numberOfContracts < 0)
-            return 0;
-
-        return numberOfContracts;
+    public Long numberOfContracts(){
+        long result = countContractCreatedEvent() - countContractTerminatedEvent();
+        return result > 0 ? result : 0;
     }
 
     @Override
@@ -56,6 +49,16 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    public Long countContractCreatedEvent() {
+        return this.eventRepository.countAllByName("ContractCreatedEvent");
+    }
+
+    @Override
+    public Long countContractTerminatedEvent() {
+        return this.eventRepository.countAllByName("ContractTerminatedEvent");
+    }
+
+    @Override
     public List<Event> findAllTerminatedContractByContractIdAndName(Long id){
         return this.eventRepository.findAllByContractIdAndName(id,"ContractTerminatedEvent");
     }
@@ -81,6 +84,7 @@ public class EventServiceImpl implements EventService {
     }
 
     public int agwpInMonth(int month){
+        //wszystkie konatkty ktore sie nie zakoncza w tym roku
         List<Event> allCreatedContract = findAllContractCreatedEvent();
         int agwpInMonth = 0;
         for (Event event : allCreatedContract) {
@@ -117,17 +121,21 @@ public class EventServiceImpl implements EventService {
     }
 
     public int totalIncreasedPremiumInMonth(ContractCreatedEvent crContract, int month) {
-        List<Event> priceIncreasedEvent = findAllPriceIncreasedByContractIdAndName(crContract.getContractId());
-        int totalPremium = 0;
-        for(Event event : priceIncreasedEvent)
-        {
-            Integer atDate = ((PriceIncreasedEvent) event).getAtDate().getMonthValue() - 1;
-            int premium = ((PriceIncreasedEvent) event).getPremiumIncrease();
-            if (atDate !=null) {
-                if (month > atDate) { totalPremium = totalPremium+ premium ;}
-            }
-        }
-        return totalPremium;
+        List<PriceIncreasedEventRepository> list = priceIncreasedEventRepository.findAllByNameAndContractIdAndAtDate_Month(crContract.getName(), crContract.getContractId(), month);
+        System.out.println(list);
+        return  0;
+//            return list.stream().mapToInt(Integer::intValue).sum();
+//        List<Event> priceIncreasedEvent = findAllPriceIncreasedByContractIdAndName(crContract.getContractId());
+//        int totalPremium = 0;
+//        for(Event event : priceIncreasedEvent)
+//        {
+//            Integer atDate = ((PriceIncreasedEvent) event).getAtDate().getMonthValue() - 1;
+//            int premium = ((PriceIncreasedEvent) event).getPremiumIncrease();
+//            if (atDate !=null) {
+//                if (month > atDate) { totalPremium = totalPremium+ premium ;}
+//            }
+//        }
+//        return totalPremium;
     }
 
     public int totalDecreasedPremiumInMonth(ContractCreatedEvent crContract, int month) {

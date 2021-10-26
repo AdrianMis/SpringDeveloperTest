@@ -1,6 +1,7 @@
 package com.example.demo.repository;
 
 import com.example.demo.model.*;
+import org.springframework.data.domain.Example;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -17,6 +18,8 @@ public interface EventRepository  extends JpaRepository<Event, Long> {
     List<Event> findAllByContractIdAndName(Long contractId, String name);
 
     List<Event> findAllByName(@Param("name") String name);
+
+    Long countAllByName(String name);
 
 /*    @Query(nativeQuery = true, value = "SELECT * FROM price_increased_event WHERE contract_id=:contractId")
     PriceIncreasedEvent findPriceIncreasedEventByContractId(@Param("contractId") Long contractId);

@@ -20,14 +20,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MainController {
 
-    //private final ReportRepository reportRepository;
     private final EventService eventService;
     private final EventFactory eventFactory;
     private final ReportService reportService;
 
     @PostMapping(value = "/addEvent")
     public ResponseEntity<EventDTO> addEvent(@RequestBody EventDTO eventDTO) {
-        System.out.println("1231");
         eventService.save(eventFactory.detectEvent(eventDTO));
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -41,8 +39,8 @@ public class MainController {
     }
 
     @GetMapping(value = "/numberOfContracts")
-    public ResponseEntity<Integer> numberOfContracts() {
-        Integer result = eventService.numberOfContracts();
+    public ResponseEntity<Long> numberOfContracts() {
+        Long result = eventService.numberOfContracts();
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 

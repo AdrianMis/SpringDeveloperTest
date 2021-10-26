@@ -9,7 +9,7 @@ import java.util.List;
 @Service
 public interface EventService {
 
-    int numberOfContracts();
+    Long numberOfContracts();
 
     int expectedGrossWrittenPremium();
 
@@ -32,6 +32,10 @@ public interface EventService {
     List<Event> findAllContractCreatedEvent();
 
     List<Event> findAllContractTerminatedEvent();
+
+    Long countContractCreatedEvent();
+
+    Long countContractTerminatedEvent();
 
     List<Event> findAllTerminatedContractByContractIdAndName(Long id);
 
