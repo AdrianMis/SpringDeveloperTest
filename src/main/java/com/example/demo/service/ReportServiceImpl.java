@@ -39,13 +39,13 @@ public class ReportServiceImpl implements ReportService {
         int[][] allData = new int[3][12];
         for (int i = 1;i<13;i++)
         {
-            allData[0][i-1] = eventService.numberOfContractsInMonth(i);
+            allData[0][i-1] = eventService.countingActiveContractsInSpecifyMonth(i);
 
-            if (i == 1) allData[1][i-1] = eventService.agwpInMonth(i);
-            else allData[1][i-1] = allData[1][i-2] + eventService.agwpInMonth(i);
+            if (i == 1) allData[1][i-1] = eventService.calculateAgwpInSpecifyMonth(i);
+            else allData[1][i-1] = allData[1][i-2] + eventService.calculateAgwpInSpecifyMonth(i);
 
-            if (i == 1)allData[2][i-1] = eventService.egwpInMonth(i,0);
-            else allData[2][i-1] = eventService.egwpInMonth(i,allData[1][i-2]);
+            if (i == 1)allData[2][i-1] = eventService.calculateEgwpInSpecifyMonth(i,0);
+            else allData[2][i-1] = eventService.calculateEgwpInSpecifyMonth(i,allData[1][i-2]);
         }
 
         return allData;

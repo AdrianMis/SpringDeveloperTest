@@ -1,11 +1,12 @@
 package com.example.demo.service;
 
-import com.example.demo.model.*;
-import com.example.demo.repository.*;
+import com.example.demo.model.Event;
+import com.example.demo.repository.EventRepository;
+import com.example.demo.repository.PriceDecreasedEventRepository;
+import com.example.demo.repository.PriceIncreasedEventRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -14,143 +15,70 @@ public class EventServiceImpl implements EventService {
 
     private final EventRepository eventRepository;
     private final PriceIncreasedEventRepository priceIncreasedEventRepository;
-
-    @Override
-    public Long numberOfContracts(){
-        long result = countContractCreatedEvent() - countContractTerminatedEvent();
-        return result > 0 ? result : 0;
-    }
-
-    @Override
-    public int expectedGrossWrittenPremium(){
-        int month = LocalDate.now().getMonthValue();
-        return  egwpInMonth(month,agwpInMonth(month));
-    }
-
-    @Override
-    public int actualGrossWrittenPremium(){
-        int month = LocalDate.now().getMonthValue();
-        return agwpInMonth(month);
-    }
+    private final PriceDecreasedEventRepository priceDecreasedEventRepository;
 
     @Override
     public void save(Event event) {
         this.eventRepository.save(event);
     }
 
-    @Override
-    public List<Event> findAllContractCreatedEvent() {
+    private List<Event> findAllContractCreatedEvent() {
         return this.eventRepository.findAllByName("ContractCreatedEvent");
     }
 
-    @Override
-    public List<Event> findAllContractTerminatedEvent() {
-        return this.eventRepository.findAllByName("ContractTerminatedEvent");
-    }
-
-    @Override
-    public Long countContractCreatedEvent() {
+    private Long countContractCreatedEvent() {
         return this.eventRepository.countAllByName("ContractCreatedEvent");
     }
 
-    @Override
-    public Long countContractTerminatedEvent() {
+    private Long countContractTerminatedEvent() {
         return this.eventRepository.countAllByName("ContractTerminatedEvent");
     }
 
-    @Override
-    public List<Event> findAllTerminatedContractByContractIdAndName(Long id){
-        return this.eventRepository.findAllByContractIdAndName(id,"ContractTerminatedEvent");
+    public int countingActiveContractsInSpecifyMonth(int month) {
+        return getActiveContractIds(month).size();
     }
 
-    @Override
-    public List<Event> findAllPriceIncreasedByContractIdAndName(Long id){
-        return eventRepository.findAllByContractIdAndName(id,"PriceIncreasedEvent");
-    }
+    public int calculateAgwpInSpecifyMonth(int month) {
+        List<Long> activeContractIds = getActiveContractIds(month);
+        int agwp = 0;
+        for (Long contractId : activeContractIds)
+            agwp +=
+                    getPremiumByContractId(contractId)
+                            + totalIncreasedPremiumInMonth(contractId, month)
+                            - totalDecreasedPremiumInMonth(contractId, month);
 
-    @Override
-    public List<Event> findAllPriceDecreasedByContractIdAndName(Long id){
-        return eventRepository.findAllByContractIdAndName(id,"PriceDecreasedEvent");
-    }
-
-    public int numberOfContractsInMonth(int month){
-        List<Event> allCreatedContract = findAllContractCreatedEvent();
-        int numberOfContracts = 0;
-
-        for (Event event : allCreatedContract) {
-            if (isWorking((ContractCreatedEvent) event, month)) numberOfContracts++;
-        }
-        return numberOfContracts;
-    }
-
-    public int agwpInMonth(int month){
-        //wszystkie konatkty ktore sie nie zakoncza w tym roku
-        List<Event> allCreatedContract = findAllContractCreatedEvent();
-        int agwpInMonth = 0;
-        for (Event event : allCreatedContract) {
-            if (isWorking((ContractCreatedEvent) event, month)) {
-                agwpInMonth += ((ContractCreatedEvent) event).getPremium() + totalIncreasedPremiumInMonth((ContractCreatedEvent) event, month) - totalDecreasedPremiumInMonth((ContractCreatedEvent) event, month);
-            }
-        }
-        return agwpInMonth;
-    }
-
-    public int egwpInMonth(int month,int agwp){
-        List<Event> allCreatedContract = findAllContractCreatedEvent();
-        int egwpInMonth = 0;
-        for (Event event : allCreatedContract) {
-            if (isWorking((ContractCreatedEvent) event,month)) {
-                egwpInMonth += ((ContractCreatedEvent) event).getPremium() + totalIncreasedPremiumInMonth((ContractCreatedEvent) event, month) - totalDecreasedPremiumInMonth((ContractCreatedEvent) event, month);
-            }
-        }
-
-        egwpInMonth = egwpInMonth * (13 - month);
-        return egwpInMonth + agwp;
-    }
-
-    public boolean isWorking(ContractCreatedEvent crContract, int month) {
-        int createdMonth = crContract.getStartDate().getMonth().getValue();
-        List<Event> listOfTerminatedContract = findAllTerminatedContractByContractIdAndName(crContract.getContractId());
-        Integer terminatedMonth;
-        if (month < createdMonth) return false;
-        for (Event event : listOfTerminatedContract) {
-            terminatedMonth = ((ContractTerminatedEvent) event).getTerminationDate().getMonth().getValue();
-            if (month > terminatedMonth) return false;
-        }
-        return true;
-    }
-
-    public int totalIncreasedPremiumInMonth(ContractCreatedEvent crContract, int month) {
-        List<PriceIncreasedEventRepository> list = priceIncreasedEventRepository.findAllByNameAndContractIdAndAtDate_Month(crContract.getName(), crContract.getContractId(), month);
-        System.out.println(list);
-        return  0;
-//            return list.stream().mapToInt(Integer::intValue).sum();
-//        List<Event> priceIncreasedEvent = findAllPriceIncreasedByContractIdAndName(crContract.getContractId());
-//        int totalPremium = 0;
-//        for(Event event : priceIncreasedEvent)
-//        {
-//            Integer atDate = ((PriceIncreasedEvent) event).getAtDate().getMonthValue() - 1;
-//            int premium = ((PriceIncreasedEvent) event).getPremiumIncrease();
-//            if (atDate !=null) {
-//                if (month > atDate) { totalPremium = totalPremium+ premium ;}
-//            }
-//        }
-//        return totalPremium;
-    }
-
-    public int totalDecreasedPremiumInMonth(ContractCreatedEvent crContract, int month) {
-        List<Event> priceDecreasedEvent = findAllPriceDecreasedByContractIdAndName(crContract.getContractId());
-        int totalPremium = 0;
-        for(Event event : priceDecreasedEvent)
-        {
-            Integer atDate = ((PriceDecreasedEvent) event).getAtDate().getMonthValue() - 1;
-            int premium = ((PriceDecreasedEvent) event).getPremiumReduction();
-            if (atDate !=null) {
-                if (month > atDate) { totalPremium = totalPremium+ premium ;}
-            }
-        }
-        return 0;
+        return agwp;
     }
 
 
+    public int calculateEgwpInSpecifyMonth(int month, int agwp) {
+        List<Long> activeContractIds = getActiveContractIds(month);
+        int egwp = 0;
+        for (Long contractId : activeContractIds)
+            egwp +=
+                    getPremiumByContractId(contractId)
+                            + totalIncreasedPremiumInMonth(contractId, month)
+                            - totalDecreasedPremiumInMonth(contractId, month);
+
+        egwp = egwp * (13 - month);
+        return egwp + agwp;
+    }
+
+    private Integer getPremiumByContractId(Long contractId) {
+        return eventRepository.findPremiumByContractId(contractId);
+    }
+
+    private List<Long> getActiveContractIds(int month){
+        List<Long> idsExistInSpecifyMonth = eventRepository.getContractIdsExistInSpecifyMonth(month);
+        return eventRepository.getOnlyActiveContractInSpecifyMonthFromList(month, idsExistInSpecifyMonth);
+    }
+    public Long totalIncreasedPremiumInMonth(Long id, int month) {
+        Long sum = priceIncreasedEventRepository.calculateSumByContractIdAndMonth(id, month);
+        return sum != null ? sum : 0;
+    }
+
+    public Long totalDecreasedPremiumInMonth(Long id, int month) {
+        Long sum = priceDecreasedEventRepository.calculateSumByContractIdAndMonth(id, month);
+        return sum != null ? sum : 0;
+    }
 }

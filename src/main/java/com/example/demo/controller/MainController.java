@@ -38,26 +38,26 @@ public class MainController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @GetMapping(value = "/numberOfContracts")
-    public ResponseEntity<Long> numberOfContracts() {
-        Long result = eventService.numberOfContracts();
-        return ResponseEntity.status(HttpStatus.OK).body(result);
-    }
-
-    @GetMapping(value = "/egwp")
-    public ResponseEntity<Integer> expectedGrossWrittenPremium() {
-        Integer result = eventService.expectedGrossWrittenPremium();
-        return ResponseEntity.status(HttpStatus.OK).body(result);
-    }
-
-    @GetMapping(value = "/agwp")
-    public ResponseEntity<Integer> actualGrossWrittenPremium() {
-        Integer result = eventService.actualGrossWrittenPremium();
-        return ResponseEntity.status(HttpStatus.OK).body(result);
-    }
+//    @GetMapping(value = "/numberOfContracts")
+//    public ResponseEntity<Long> numberOfContracts() {
+//        Long result = eventService.numberOfContracts();
+//        return ResponseEntity.status(HttpStatus.OK).body(result);
+//    }
+//
+//    @GetMapping(value = "/egwp")
+//    public ResponseEntity<Integer> expectedGrossWrittenPremium() {
+//        Integer result = eventService.expectedGrossWrittenPremium();
+//        return ResponseEntity.status(HttpStatus.OK).body(result);
+//    }
+//
+//    @GetMapping(value = "/agwp")
+//    public ResponseEntity<Integer> actualGrossWrittenPremium() {
+//        Integer result = eventService.actualGrossWrittenPremium();
+//        return ResponseEntity.status(HttpStatus.OK).body(result);
+//    }
 
     @PostMapping(value = "/generateReport")
-    public ResponseEntity<ReportDTO> generateReport() throws IOException {
+    public ResponseEntity<ReportDTO> generateReport() {
         ReportDTO reportDTO = reportService.generateReport();
         return ResponseEntity.ok().body(reportDTO);
     }
