@@ -1,10 +1,6 @@
 package com.example.demo.service;
 
-import com.example.demo.dto.ReportDTO;
-import com.example.demo.model.ContractCreatedEvent;
-import com.example.demo.model.ContractTerminatedEvent;
-import com.example.demo.model.PriceDecreasedEvent;
-import com.example.demo.model.PriceIncreasedEvent;
+import com.example.demo.model.*;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -13,15 +9,15 @@ import java.util.List;
 @Service
 public interface EventService {
 
-    int numberOfContrafts();
+    int numberOfContracts();
 
     int expectedGrossWrittenPremium();
 
     int actualGrossWrittenPremium();
 
-    int priceDecreased(ContractCreatedEvent crContract, int month);
+    int totalDecreasedPremiumInMonth(ContractCreatedEvent crContract, int month);
 
-    int priceIncreased(ContractCreatedEvent crContract, int month);
+    int totalIncreasedPremiumInMonth(ContractCreatedEvent crContract, int month);
 
     boolean isWorking(ContractCreatedEvent crContract, int month);
 
@@ -29,30 +25,18 @@ public interface EventService {
 
     int agwpInMonth(int month);
 
-    int numberOfContraftsInMonth(int month);
+    int numberOfContractsInMonth(int month);
 
-    void save(ContractCreatedEvent contractCreatedEvent);
+    void save(Event event);
 
-    void save(ContractTerminatedEvent contractTerminatedEvent);
+    List<Event> findAllContractCreatedEvent();
 
-    void save(PriceDecreasedEvent priceDecreasedEvent);
+    List<Event> findAllContractTerminatedEvent();
 
-    void save(PriceIncreasedEvent priceIncreasedEvent);
+    List<Event> findAllTerminatedContractByContractIdAndName(Long id);
 
-    List<ContractCreatedEvent> findAllContractCreatedEvent();
+    List<Event> findAllPriceDecreasedByContractIdAndName(Long id);
 
-    List<ContractTerminatedEvent> findAllContractTerminatedEvent();
-
-    List<PriceDecreasedEvent> findAllPriceDecreasedEvent();
-
-    List<PriceIncreasedEvent> findAllPriceIncreasedEvent();
-
-    PriceIncreasedEvent getPriceIncreasedEventById(Long id);
-
-    PriceDecreasedEvent getPriceDecreasedEventById(Long id);
-
-    ContractCreatedEvent getContractCreatedEventById(Long id);
-
-    LocalDate getDateOfContractTerminatedEventById(Long id);
+    List<Event> findAllPriceIncreasedByContractIdAndName(Long id);
 
 }

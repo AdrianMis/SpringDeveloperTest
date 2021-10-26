@@ -23,7 +23,7 @@ class EventServiceTest {
     }
 
     @Test
-    void numberOfContrafts() {
+    void numberOfContracts() {
         //given
         int expected = 1;
 
@@ -48,7 +48,7 @@ class EventServiceTest {
         eventFactory.detectEvent(event3DTO);
 
         //when
-        int result = eventService.numberOfContrafts();
+        int result = eventService.numberOfContracts();
 
         //then
         Assertions.assertEquals(expected,result);

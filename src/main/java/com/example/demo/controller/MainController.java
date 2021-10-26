@@ -3,6 +3,8 @@ package com.example.demo.controller;
 import com.example.demo.dto.EventDTO;
 import com.example.demo.dto.ReportDTO;
 import com.example.demo.factories.EventFactory;
+import com.example.demo.model.ContractCreatedEvent;
+import com.example.demo.model.Event;
 import com.example.demo.service.EventService;
 import com.example.demo.service.ReportService;
 import lombok.RequiredArgsConstructor;
@@ -23,32 +25,24 @@ public class MainController {
     private final EventFactory eventFactory;
     private final ReportService reportService;
 
-    @GetMapping
-    public String home()  {
-        return "return xd";
-    }
-
     @PostMapping(value = "/addEvent")
     public ResponseEntity<EventDTO> addEvent(@RequestBody EventDTO eventDTO) {
         System.out.println("1231");
-        eventFactory.detectEvent(eventDTO);
+        eventService.save(eventFactory.detectEvent(eventDTO));
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PostMapping(value = "/addEvents")
     public ResponseEntity<List<EventDTO>> addEvents(@RequestBody List<EventDTO> listOfEventDTO) {
-        while ( listOfEventDTO.iterator().hasNext()){
-            EventDTO eventDTO = listOfEventDTO.iterator().next();
-            eventFactory.detectEvent(eventDTO);
-        }
+        for(EventDTO event : listOfEventDTO) {eventService.save(eventFactory.detectEvent(event));}
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @GetMapping(value = "/numberOfContrafts")
-    public ResponseEntity<Integer> numberOfContrafts() {
-        Integer result = eventService.numberOfContrafts();
+    @GetMapping(value = "/numberOfContracts")
+    public ResponseEntity<Integer> numberOfContracts() {
+        Integer result = eventService.numberOfContracts();
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 

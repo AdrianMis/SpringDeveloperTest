@@ -19,4 +19,20 @@ public class PriceIncreasedEvent extends Event{
 
     @Column(name = "at_date")
     private LocalDate atDate;
+
+    public void setPremiumIncrease(Integer premiumIncrease) {
+        this.premiumIncrease = premiumIncrease;
+    }
+
+    public void setAtDate(LocalDate atDate) {
+        this.atDate = atDate;
+    }
+
+    public Integer getPremiumIncrease() {
+        return premiumIncrease;
+    }
+
+    public LocalDate getAtDate() {
+        return atDate;
+    }
 }

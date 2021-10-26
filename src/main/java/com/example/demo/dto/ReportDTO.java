@@ -12,8 +12,6 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class ReportDTO {
-    private Long id;
-
     private List<Integer> numberOfContracts;
 
     private List<Integer> AGWP;

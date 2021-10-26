@@ -7,9 +7,8 @@ import com.example.demo.model.PriceDecreasedEvent;
 import com.example.demo.model.PriceIncreasedEvent;
 import org.mapstruct.Mapper;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface EventMapper {
-
 
     ContractCreatedEvent eventDTOToContractCreatedEvent (EventDTO eventDTO);
 
