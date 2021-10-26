@@ -14,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -75,27 +76,30 @@ class EventServiceTest {
 
         EventDTO event1DTO = new EventDTO();
         event1DTO.setContractId("1");
-        event1DTO.setStartDate(LocalDate.ofEpochDay(2020-01-01));
+        event1DTO.setStartDate(LocalDate.parse("2020-01-01"));
         event1DTO.setPremium(200);
         event1DTO.setName("ContractCreatedEvent");
         eventRepository.save(eventFactory.detectEvent(event1DTO));
 
         EventDTO event2DTO = new EventDTO();
         event2DTO.setContractId("2");
-        event2DTO.setStartDate(LocalDate.ofEpochDay(2020-02-01));
+        event2DTO.setStartDate(LocalDate.parse("2020-02-01"));
         event2DTO.setPremium(300);
         event2DTO.setName("ContractCreatedEvent");
         eventRepository.save(eventFactory.detectEvent(event2DTO));
 
         EventDTO event3DTO = new EventDTO();
         event3DTO.setContractId("1");
-        event3DTO.setTerminationDate(LocalDate.ofEpochDay(2020-03-31));
+        event3DTO.setTerminationDate(LocalDate.parse("2020-03-31"));
         event3DTO.setName("ContractTerminatedEvent");
         eventRepository.save(eventFactory.detectEvent(event3DTO));
 
         //when
         int[][] result = reportService.getTableOfAllData();
+
         //then
+        Assertions.assertEquals(expected[0][4],result[0][4]);
+        Assertions.assertEquals(expected[1][11],result[1][11]);
         Assertions.assertEquals(expected[2][7],result[2][7]);
     }
 
@@ -113,14 +117,14 @@ class EventServiceTest {
 
         EventDTO event2DTO = new EventDTO();
         event2DTO.setContractId("2");
-        event2DTO.setStartDate(LocalDate.ofEpochDay(2020-02-01));
+        event2DTO.setStartDate(LocalDate.parse("2020-01-01"));
         event2DTO.setPremium(300);
         event2DTO.setName("ContractCreatedEvent");
         eventRepository.save(eventFactory.detectEvent(event2DTO));
 
         EventDTO event3DTO = new EventDTO();
         event3DTO.setContractId("1");
-        event3DTO.setTerminationDate(LocalDate.ofEpochDay(2020-03-31));
+        event3DTO.setTerminationDate(LocalDate.parse("2020-01-01"));
         event3DTO.setName("ContractTerminatedEvent");
         eventRepository.save(eventFactory.detectEvent(event3DTO));
 
@@ -137,20 +141,20 @@ class EventServiceTest {
 
         EventDTO event1DTO = new EventDTO();
         event1DTO.setContractId("1");
-        event1DTO.setStartDate(LocalDate.ofEpochDay(2020-01-01));
+        event1DTO.setStartDate(LocalDate.parse("2020-01-01"));
         event1DTO.setPremium(200);
         event1DTO.setName("ContractCreatedEvent");
         eventRepository.save(eventFactory.detectEvent(event1DTO));
 
         EventDTO event2DTO = new EventDTO();
         event2DTO.setContractId("2");
-        event2DTO.setTerminationDate(LocalDate.ofEpochDay(2020-02-01));
+        event2DTO.setTerminationDate(LocalDate.parse("2020-01-01"));
         event2DTO.setName("ContractTerminatedEvent");
         eventRepository.save(eventFactory.detectEvent(event2DTO));
 
         EventDTO event3DTO = new EventDTO();
         event3DTO.setContractId("1");
-        event3DTO.setTerminationDate(LocalDate.ofEpochDay(2020-03-31));
+        event3DTO.setTerminationDate(LocalDate.parse("2020-01-01"));
         event3DTO.setName("ContractTerminatedEvent");
         eventRepository.save(eventFactory.detectEvent(event3DTO));
 
@@ -167,14 +171,14 @@ class EventServiceTest {
 
         EventDTO event1DTO = new EventDTO();
         event1DTO.setContractId("1");
-        event1DTO.setStartDate(LocalDate.ofEpochDay(2020-01-01));
+        event1DTO.setStartDate(LocalDate.parse("2020-01-01"));
         event1DTO.setPremium(200);
         event1DTO.setName("ContractCreatedEvent");
         eventRepository.save(eventFactory.detectEvent(event1DTO));
 
         EventDTO event2DTO = new EventDTO();
         event2DTO.setContractId("2");
-        event2DTO.setStartDate(LocalDate.ofEpochDay(2020-01-01));
+        event2DTO.setStartDate(LocalDate.parse("2020-01-01"));
         event2DTO.setPremium(300);
         event2DTO.setName("ContractCreatedEvent");
         eventRepository.save(eventFactory.detectEvent(event2DTO));
@@ -188,25 +192,25 @@ class EventServiceTest {
     @Test
     void correctAGWP() {
         //given
-        int expected = 2400;
+        int expected = 500;
 
         EventDTO event1DTO = new EventDTO();
         event1DTO.setContractId("1");
-        event1DTO.setStartDate(LocalDate.ofEpochDay(2020-01-01));
+        event1DTO.setStartDate(LocalDate.parse("2020-01-01"));
         event1DTO.setPremium(200);
         event1DTO.setName("ContractCreatedEvent");
         eventRepository.save(eventFactory.detectEvent(event1DTO));
 
         EventDTO event2DTO = new EventDTO();
         event2DTO.setContractId("2");
-        event2DTO.setStartDate(LocalDate.ofEpochDay(2020-02-31));
+        event2DTO.setStartDate(LocalDate.parse("2020-01-01"));
         event2DTO.setPremium(300);
         event2DTO.setName("ContractCreatedEvent");
         eventRepository.save( eventFactory.detectEvent(event2DTO));
 
         EventDTO event3DTO = new EventDTO();
         event3DTO.setContractId("1");
-        event3DTO.setTerminationDate(LocalDate.ofEpochDay(2020-03-31));
+        event3DTO.setTerminationDate(LocalDate.parse("2020-01-31"));
         event3DTO.setName("ContractTerminatedEvent");
         eventRepository.save(eventFactory.detectEvent(event3DTO));
 
