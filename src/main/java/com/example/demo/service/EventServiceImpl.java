@@ -112,10 +112,10 @@ public class EventServiceImpl implements EventService {
         int createdMonth = crContract.getStartDate().getMonth().getValue();
         List<Event> listOfTerminatedContract = findAllTerminatedContractByContractIdAndName(crContract.getContractId());
         Integer terminatedMonth;
-
+        if (month < createdMonth) return false;
         for (Event event : listOfTerminatedContract) {
             terminatedMonth = ((ContractTerminatedEvent) event).getTerminationDate().getMonth().getValue();
-            if ((month >= createdMonth) && (month > terminatedMonth)) return false;
+            if (month > terminatedMonth) return false;
         }
         return true;
     }
