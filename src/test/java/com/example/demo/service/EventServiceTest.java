@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDate;
+import java.util.stream.IntStream;
 
 @SpringBootTest
 class EventServiceTest {
@@ -68,6 +69,8 @@ class EventServiceTest {
         expected[2][10] = 2000;
         expected[2][11] = 1900;
 
+        eventRepository.deleteAll();
+
         EventDTO event1DTO = new EventDTO();
         event1DTO.setContractId("1");
         event1DTO.setStartDate(LocalDate.parse("2020-01-01"));
@@ -92,35 +95,39 @@ class EventServiceTest {
         event4DTO.setContractId("2");
         event4DTO.setTerminationDate(LocalDate.parse("2020-11-30"));
         event4DTO.setName("ContractTerminatedEvent");
-        eventRepository.save(eventFactory.detectEvent(event3DTO));
+        eventRepository.save(eventFactory.detectEvent(event4DTO));
 
         EventDTO event5DTO = new EventDTO();
         event5DTO.setContractId("1");
         event5DTO.setAtDate(LocalDate.parse("2020-03-01"));
         event5DTO.setName("PriceIncreasedEvent");
         event5DTO.setPremiumIncrease(100);
-        eventRepository.save(eventFactory.detectEvent(event3DTO));
+        eventRepository.save(eventFactory.detectEvent(event5DTO));
 
         EventDTO event6DTO = new EventDTO();
         event6DTO.setContractId("1");
-        event6DTO.setAtDate(LocalDate.parse("2020-11-30"));
+        event6DTO.setAtDate(LocalDate.parse("2020-05-30"));
         event6DTO.setName("PriceDecreasedEvent");
         event6DTO.setPremiumReduction(100);
-        eventRepository.save(eventFactory.detectEvent(event3DTO));
+        eventRepository.save(eventFactory.detectEvent(event6DTO));
 
         //when
         Integer[][] result = reportService.getTableOfAllData();
 
         //then
-        Assertions.assertEquals(expected[0][4], result[0][4]);
-        Assertions.assertEquals(expected[1][11], result[1][11]);
-        Assertions.assertEquals(expected[2][7], result[2][7]);
+        IntStream.range(0, 12).forEachOrdered(i -> {
+            Assertions.assertEquals(expected[0][i], result[0][i]);
+            Assertions.assertEquals(expected[1][i], result[1][i]);
+            Assertions.assertEquals(expected[2][i], result[2][i]);
+        });
     }
 
     @Test
     void correctNumberOfContracts() {
         //given
         Integer expected = 1;
+
+        eventRepository.deleteAll();
 
         EventDTO event1DTO = new EventDTO();
         event1DTO.setContractId("1");
@@ -138,12 +145,19 @@ class EventServiceTest {
 
         EventDTO event3DTO = new EventDTO();
         event3DTO.setContractId("1");
-        event3DTO.setTerminationDate(LocalDate.parse("2020-01-01"));
+        event3DTO.setTerminationDate(LocalDate.parse("2020-03-01"));
         event3DTO.setName("ContractTerminatedEvent");
         eventRepository.save(eventFactory.detectEvent(event3DTO));
 
+        EventDTO event4DTO = new EventDTO();
+        event4DTO.setContractId("2");
+        event4DTO.setTerminationDate(LocalDate.parse("2020-06-01"));
+        event4DTO.setName("ContractTerminatedEvent");
+        eventRepository.save(eventFactory.detectEvent(event4DTO));
+
         //when
-        Integer result = eventService.countingActiveContractsInSpecifyMonth(12);
+        Integer result = eventService.countingActiveContractsInSpecifyMonth(4);
+
         //then
         Assertions.assertEquals(expected, result);
     }
@@ -152,6 +166,8 @@ class EventServiceTest {
     void Exception0NumberOfContracts() {
         //given
         Integer expected = 0;
+
+        eventRepository.deleteAll();
 
         EventDTO event1DTO = new EventDTO();
         event1DTO.setContractId("1");
@@ -183,30 +199,7 @@ class EventServiceTest {
         //given
         int expected = 6000;
 
-        EventDTO event1DTO = new EventDTO();
-        event1DTO.setContractId("1");
-        event1DTO.setStartDate(LocalDate.parse("2020-01-01"));
-        event1DTO.setPremium(200);
-        event1DTO.setName("ContractCreatedEvent");
-        eventRepository.save(eventFactory.detectEvent(event1DTO));
-
-        EventDTO event2DTO = new EventDTO();
-        event2DTO.setContractId("2");
-        event2DTO.setStartDate(LocalDate.parse("2020-01-01"));
-        event2DTO.setPremium(300);
-        event2DTO.setName("ContractCreatedEvent");
-        eventRepository.save(eventFactory.detectEvent(event2DTO));
-
-        //when
-        int result = eventService.calculateEgwpInSpecifyMonth(1, 0);
-        //then
-        Assertions.assertEquals(expected, result);
-    }
-
-    @Test
-    void correctAGWP() {
-        //given
-        int expected = 500;
+        eventRepository.deleteAll();
 
         EventDTO event1DTO = new EventDTO();
         event1DTO.setContractId("1");
@@ -227,6 +220,51 @@ class EventServiceTest {
         event3DTO.setTerminationDate(LocalDate.parse("2020-01-31"));
         event3DTO.setName("ContractTerminatedEvent");
         eventRepository.save(eventFactory.detectEvent(event3DTO));
+
+        EventDTO event4DTO = new EventDTO();
+        event4DTO.setContractId("2");
+        event4DTO.setTerminationDate(LocalDate.parse("2020-01-31"));
+        event4DTO.setName("ContractTerminatedEvent");
+        eventRepository.save(eventFactory.detectEvent(event4DTO));
+
+        //when
+        int result = eventService.calculateEgwpInSpecifyMonth(1, 0);
+        //then
+        Assertions.assertEquals(expected, result);
+    }
+
+    @Test
+    void correctAGWP() {
+        //given
+        int expected = 500;
+
+        eventRepository.deleteAll();
+
+        EventDTO event1DTO = new EventDTO();
+        event1DTO.setContractId("1");
+        event1DTO.setStartDate(LocalDate.parse("2020-01-01"));
+        event1DTO.setPremium(200);
+        event1DTO.setName("ContractCreatedEvent");
+        eventRepository.save(eventFactory.detectEvent(event1DTO));
+
+        EventDTO event2DTO = new EventDTO();
+        event2DTO.setContractId("2");
+        event2DTO.setStartDate(LocalDate.parse("2020-01-01"));
+        event2DTO.setPremium(300);
+        event2DTO.setName("ContractCreatedEvent");
+        eventRepository.save(eventFactory.detectEvent(event2DTO));
+
+        EventDTO event3DTO = new EventDTO();
+        event3DTO.setContractId("1");
+        event3DTO.setTerminationDate(LocalDate.parse("2020-01-31"));
+        event3DTO.setName("ContractTerminatedEvent");
+        eventRepository.save(eventFactory.detectEvent(event3DTO));
+
+//        EventDTO event4DTO = new EventDTO();
+//        event4DTO.setContractId("2");
+//        event4DTO.setTerminationDate(LocalDate.parse("2020-01-31"));
+//        event4DTO.setName("ContractTerminatedEvent");
+//        eventRepository.save(eventFactory.detectEvent(event4DTO));
 
         //when
         int result = eventService.calculateAgwpInSpecifyMonth(1);

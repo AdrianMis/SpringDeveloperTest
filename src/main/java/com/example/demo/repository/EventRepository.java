@@ -32,6 +32,19 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             nativeQuery = true)
     List<Long> getOnlyActiveContractInSpecifyMonthFromList(Integer month, List<Long> ids);
 
+    @Query(value = "SELECT DISTINCT event.contract_id " +
+            "FROM contract_created_event " +
+            "INNER JOIN event ON contract_created_event.id = event.id " +
+            "WHERE EXTRACT(MONTH FROM start_date) >= :month " +
+            "AND event.contract_id NOT IN " +
+            "(" +
+            "SELECT DISTINCT event.contract_id " +
+            "FROM contract_terminated_event " +
+            "INNER JOIN event ON contract_terminated_event.id = event.id" +
+            ") ",
+            nativeQuery = true)
+    List<Long> getNotTerminatedContractInSpecifyMonth(Integer month);
+
     @Query(value = "SELECT SUM(premium_increase) " +
             "FROM price_increased_event " +
             "INNER JOIN event ON price_increased_event.id = event.id " +

@@ -59,7 +59,10 @@ public class EventServiceImpl implements EventService {
 
     private List<Long> getActiveContractIds(int month) {
         List<Long> idsExistInSpecifyMonth = eventRepository.getContractIdsExistInSpecifyMonth(month);
-        return eventRepository.getOnlyActiveContractInSpecifyMonthFromList(month, idsExistInSpecifyMonth);
+        List<Long> activeInSpecifyMonth = eventRepository.getOnlyActiveContractInSpecifyMonthFromList(month, idsExistInSpecifyMonth);
+        List<Long> notTerminated = eventRepository.getNotTerminatedContractInSpecifyMonth(month);
+        activeInSpecifyMonth.addAll(notTerminated);
+        return activeInSpecifyMonth;
     }
 
     private Long totalIncreasedPremiumInMonth(Long id, int month) {
